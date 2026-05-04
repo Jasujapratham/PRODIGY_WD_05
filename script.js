@@ -1,23 +1,11 @@
-/* ============================================================
-   AURA — Premium Weather App  |  script.js
-   ============================================================
 
-   HOW TO USE:
-   1. Get a FREE API key from https://openweathermap.org/api
-   2. Replace "YOUR_API_KEY_HERE" below with your key
-   3. Open index.html in a browser (use Live Server for best results)
-
-   ============================================================ */
-
-// ── CONFIG ─────────────────────────────────────────────────────
 const CONFIG = {
-  API_KEY      : '4697f6fd6334e51473d7f5e79e378b63',          // ← PASTE YOUR KEY HERE
+  API_KEY      : '4697f6fd6334e51473d7f5e79e378b63',         
   BASE_URL     : 'https://api.openweathermap.org/data/2.5',
   GEO_URL      : 'https://api.openweathermap.org/geo/1.0',
-  REFRESH_MS   : 5 * 60 * 1000,               // auto-refresh every 5 min
+  REFRESH_MS   : 5 * 60 * 1000,             
 };
 
-// ── STATE ───────────────────────────────────────────────────────
 const state = {
   unit         : localStorage.getItem('aura-unit') || 'metric',
   currentCity  : null,
@@ -25,7 +13,6 @@ const state = {
   refreshTimer : null,
 };
 
-// ── DOM REFS ────────────────────────────────────────────────────
 const DOM = {
   dateTime       : document.getElementById('dateTime'),
   skeletonWrap   : document.getElementById('skeletonWrap'),
@@ -77,11 +64,10 @@ function handleSearch() {
 
   if (!city) return;
 
-  loadWeather(city); // YOU ALREADY HAVE THIS FUNCTION
+  loadWeather(city);
 
-  DOM.searchInput.value = ''; // clear input
+  DOM.searchInput.value = '';
 }
-// ── MATERIAL ICONS MAP ──────────────────────────────────────────
 const MATERIAL_ICONS_MAP = {
   '01d': 'sunny', '01n': 'bedtime', '02d': 'partly_cloudy_day', '02n': 'partly_cloudy_night',
   '03d': 'cloud', '03n': 'cloud', '04d': 'cloud', '04n': 'cloud',
@@ -90,7 +76,6 @@ const MATERIAL_ICONS_MAP = {
   '50d': 'cloud', '50n': 'cloud',
 };
 
-// ── CLOCK ───────────────────────────────────────────────────────
 function updateDateTime() {
   const now = new Date();
 
@@ -117,7 +102,6 @@ function updateDateTime() {
 setInterval(updateDateTime, 30_000);
 updateDateTime();
 
-// ── UNIT HELPERS ────────────────────────────────────────────────
 const tempStr = (k, unit) => unit === 'metric'
   ? `${Math.round(k)}°`
   : `${Math.round(k * 9/5 + 32)}°`;
@@ -126,7 +110,6 @@ const speedStr = (ms, unit) => unit === 'metric'
   ? `${Math.round(ms)}`
   : `${Math.round(ms * 2.237)}`;
 
-// ── SHOW / HIDE STATES ──────────────────────────────────────────
 function showSkeleton() {
   DOM.skeletonWrap.style.display = 'block';
   DOM.errorState.style.display = 'none';
@@ -148,7 +131,6 @@ function showWeather() {
   DOM.weatherData.style.display = 'block';
 }
 
-// ── RENDER WEATHER ──────────────────────────────────────────────
 function renderCurrent(data) {
   const u = state.unit;
   const icon = data.weather[0].icon;
@@ -252,7 +234,6 @@ function renderForecast(forecast, unit) {
   });
 }
 
-// ── API CALLS ───────────────────────────────────────────────────
 async function fetchCurrent(city) {
   const res = await fetch(
     `${CONFIG.BASE_URL}/weather?q=${encodeURIComponent(city)}&appid=${CONFIG.API_KEY}&units=metric`
@@ -285,7 +266,6 @@ async function fetchForecastByCoords(lat, lon) {
   return res.json();
 }
 
-// ── LOAD WEATHER ────────────────────────────────────────────────
 async function loadWeather(city) {
   showSkeleton();
   clearAutoRefresh();
@@ -336,7 +316,6 @@ async function loadWeatherByCoords(lat, lon) {
   }
 }
 
-// ── AUTO REFRESH ────────────────────────────────────────────────
 function startAutoRefresh(city) {
   state.refreshTimer = setTimeout(() => loadWeather(city), CONFIG.REFRESH_MS);
 }
@@ -345,7 +324,6 @@ function clearAutoRefresh() {
   if (state.refreshTimer) clearTimeout(state.refreshTimer);
 }
 
-// ── GEOLOCATION ─────────────────────────────────────────────────
 function useLocation() {
   if (!navigator.geolocation) {
     showError('📍', 'Not supported', 'Your browser does not support geolocation.');
@@ -366,7 +344,6 @@ function useLocation() {
   );
 }
 
-// ── HELPERS ──────────────────────────────────────────────────────
 function fmtTime(unix, tzOffset) {
   const d = new Date((unix + tzOffset) * 1000);
   let h = d.getUTCHours(), m = d.getUTCMinutes();
@@ -375,7 +352,6 @@ function fmtTime(unix, tzOffset) {
   return `${h}:${m.toString().padStart(2, '0')} ${ampm}`;
 }
 
-// ── EVENTS ───────────────────────────────────────────────────────
 function bindEvents() {
   DOM.locationBtn.addEventListener('click', useLocation);
   DOM.retryBtn.addEventListener('click', () => {
@@ -384,11 +360,7 @@ function bindEvents() {
   });
 }
 
-// ── INIT ─────────────────────────────────────────────────────────
 function init() {
-  // Button click
-
-// Enter key
 DOM.searchInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') {
     handleSearch();
@@ -396,12 +368,10 @@ DOM.searchInput.addEventListener('keypress', (e) => {
 });
   bindEvents();
   
-  // Load initial weather
   const lastCity = localStorage.getItem('aura-last-city');
   if (lastCity) {
     loadWeather(lastCity);
   } else {
-    // Try location first; if denied, load a default
     if (navigator.geolocation) {
       showSkeleton();
       navigator.geolocation.getCurrentPosition(
